@@ -9,7 +9,7 @@ stepsPerDay <- aggregate(steps~date, activity, sum, na.rm=TRUE, na.action=na.pas
 qplot(steps, data=stepsPerDay, xlab="total steps per day", binwidth=500)
 
 mean.stepsPerDay = mean(stepsPerDay$steps)
-median.stpesPerDay = median(stepsPerDay$steps)
+median.stepsPerDay = median(stepsPerDay$steps)
 
 # What is the average daily activity pattern?
 aveOfDailyActPattern <- aggregate(steps~interval, activity, mean, na.rm=TRUE, na.action=na.pass)

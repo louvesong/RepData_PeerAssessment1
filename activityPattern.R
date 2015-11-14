@@ -5,40 +5,43 @@ unzip("activity.zip", "activity.csv")
 activity <- read.csv("activity.csv")
 
 # What is mean total number of steps taken per day?
-stepsPerDay <- aggregate(steps~date, activity, sum)
-qplot(steps, data=stepsPerDay)
+stepsPerDay <- aggregate(steps~date, activity, sum, na.rm=TRUE, na.action=na.pass)
+qplot(steps, data=stepsPerDay, xlab="total steps per day", binwidth=500)
 
-meanOfstepsPerDay = mean(stepsPerDay$steps)
-medianOfstpesPerDay = median(stepsPerDay$steps)
+mean.stepsPerDay = mean(stepsPerDay$steps)
+median.stpesPerDay = median(stepsPerDay$steps)
 
 # What is the average daily activity pattern?
-aveOfActPattern <- aggregate(steps~interval, activity, mean)
-qplot(interval, steps, data=aveOfActPattern, geom=c("line"))
+aveOfDailyActPattern <- aggregate(steps~interval, activity, mean, na.rm=TRUE, na.action=na.pass)
+#qplot(interval, steps, data=aveOfActPattern, geom=c("line")
+ggplot(data=aveOfDailyActPattern, aes(x=interval,y=steps)) + 
+        geom_line() +
+        xlab("5 minute interval") +
+        ylab("average steps")
 
-maxInterval = aveOfActPattern[which.max(aveOfActPattern$steps),]$interval
+maxInterval = aveOfDailyActPattern[which.max(aveOfDailyActPattern$steps),]$interval
 
 # Imputing missing values
-#       more simple and sophisticated method
-totalNumOfNA <- table(complete.cases(activity))[1]
+## the total number of missing values
+totalNumOfNA <- length(which(is.na(activity$steps)))
+## Create the imputed column by median value of interval
+medianOfDailyActPattern <- aggregate(steps~interval, activity, median)
+activity$imputedStep <- ifelse(is.na(activity$steps), 
+                               medianOfDailyActPattern$steps,
+                               activity$steps)
 
-medianOfActPattern <- aggregate(steps~interval, activity, median)
-imputedAct <- activity
-for (i in 1:nrow(imputedAct)) {
-        imputedStep <- imputedAct[i,]
-        if (is.na(imputedStep$steps)) {
-                imputedAct[i,]$steps <- aveOfActPattern[imputedStep$interval==aveOfActPattern$interval,]$steps
-        }
-}
+imputedStepsPerDay <- aggregate(imputedStep~date, activity, sum, na.rm=TRUE, na.action=na.pass)
+qplot(imputedStep, data=imputedStepsPerDay, xlab="total steps per day (imputed)", binwidth=500)
 
-imputedStepsPerDay <- aggregate(steps~date, imputedAct, sum)
-qplot(steps, data=imputedStepsPerDay)
-
-meanOfImputedStepsPerDay = mean(imputedStepsPerDay$steps)
-medianOfImputedStpesPerDay = median(imputedStepsPerDay$steps)
+mean.imputedStepsPerDay = mean(imputedStepsPerDay$imputedStep)
+median.imputedStpesPerDay = median(imputedStepsPerDay$imputedStep)
 
 # Are there differences in activity patterns between weekdays and weekends?
-imputedAct$isWeekday <- ifelse(weekdays(as.Date(imputedAct$date), abbreviate=TRUE) %in% c("Sat", "Sun"), "weekend", "weekday")
-imputedAct$isWeekday <- as.factor(imputedAct$isWeekday)
+activity$isWeekday <- ifelse(weekdays(as.Date(activity$date), abbreviate=TRUE) %in% c("Sat", "Sun"), "weekend", "weekday")
+activity$isWeekday <- as.factor(activity$isWeekday)
 
-imputedAveOfActPattern <- aggregate(steps~interval+isWeekday, imputedAct, mean)
-qplot(interval, steps, data=imputedAveOfActPattern, facets = isWeekday~., geom=c("line"))
+imputedAveOfActPattern <- aggregate(imputedStep~interval+isWeekday, activity, mean, na.rm=TRUE, na.action=na.pass)
+ggplot(imputedAveOfActPattern, aes(x=interval, y=imputedStep)) +
+        geom_line() +
+        facet_grid(isWeekday~.) + 
+        labs(x="5 minute interval", y="average steps")

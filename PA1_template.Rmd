@@ -2,11 +2,12 @@
 title: "Reproducible Research : Peer Assessment 1"
 output: 
   html_document: 
+    fig_caption: yes
     keep_md: yes
+    toc: yes
 ---
 
 ```{r load library}
-echo=FALSE
 library(ggplot2)
 ```
 

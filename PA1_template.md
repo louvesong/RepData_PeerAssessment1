@@ -2,7 +2,6 @@
 
 
 ```r
-echo=FALSE
 library(ggplot2)
 ```
 

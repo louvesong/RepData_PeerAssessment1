@@ -5,7 +5,8 @@ output:
     keep_md: yes
 ---
 
-```{r load library, echo=FALSE}
+```{r load library}
+echo=FALSE
 library(ggplot2)
 ```
 

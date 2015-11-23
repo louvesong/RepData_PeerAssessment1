@@ -1,6 +1,10 @@
 # Reproducible Research : Peer Assessment 1
 
 
+```r
+echo=FALSE
+library(ggplot2)
+```
 
 ## Load the data
 
